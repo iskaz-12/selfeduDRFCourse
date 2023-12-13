@@ -17,7 +17,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from women.views import WomenAPIView
+# from women.views import WomenAPIView, WomenAPIList
+from women.views import *
 
 # ---06.12.2023---
 # Lesson 2
@@ -25,10 +26,15 @@ from women.views import WomenAPIView
 # После api/ в URL принято указывать его версию
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/v1/womenlist/', WomenAPIView.as_view()),
-    # ---09.12.2023---
-    # Lesson 5
-    # Дополнительный маршрут для метода put() WomenAPIView,
-    # вызывающего метод update WomenSerializer (передаём ключ pk)
-    path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view())
+    # path('api/v1/womenlist/', WomenAPIView.as_view()),
+    # # ---09.12.2023---
+    # # Lesson 5
+    # # Дополнительный маршрут для метода put() WomenAPIView,
+    # # вызывающего метод update WomenSerializer (передаём ключ pk)
+    # path('api/v1/womenlist/<int:pk>/', WomenAPIView.as_view()),
+    # ---13.12.2023---
+    # Lesson 6
+    # Маршруты для WomenAPIList
+    path('api/v1/womenlist/', WomenAPIList.as_view()),
+    path('api/v1/womenlist/<int:pk>/', WomenAPIList.as_view())
 ]

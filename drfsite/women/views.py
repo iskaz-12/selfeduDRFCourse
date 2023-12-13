@@ -10,6 +10,37 @@ from .serializers import WomenSerializer
 
 # Create your views here.
 
+"""
+# ---13.12.2023---
+# Lesson 6
+# В Django также существуют предопределённые базовые классы представлений
+# для выполнения различных видов запросов:
+# CreateAPIView – создание данных по POST-запросу;
+# ListAPIView – чтение списка данных по GET-запросу;
+# RetrieveAPIView – чтение конкретных данных (записи) по GET-запросу;
+# DestroyAPIView – удаление данных (записи) по DELETE-запросу;
+# UpdateAPIView – изменение записи по PUT- или PATCH-запросу;
+# ListCreateAPIView – для чтения (по GET-запросу) и создания списка данных (по POST-запросу);
+# RetrieveUpdateAPIView – чтение и изменение отдельной записи (GET-, PUT- и PATCH-запросы);
+# RetrieveDestroyAPIView – чтение (GET-запрос) и удаление (DELETE-запрос) отдельной записи;
+# RetrieveUpdateDestroyAPIView – чтение, изменение и добавление отдельной записи (GET-, PUT-, PATCH- и DELETE-запросы)
+"""
+
+
+# ---13.12.2023---
+# Lesson 6
+# Определим представление на основе ListCreateAPIView, возвращающее список записей по GET-запросу
+# и добавляющее новую запись по POST-запросу
+# ListCreateAPIView наследуется от следующих классов:
+# mixins.ListModelMixin - миксин для определения метода list(),
+# mixins.CreateModelMixin - миксин для определения метода create(),
+# GenericAPIView - базовый класс для всех APIView
+class WomenAPIList(generics.ListCreateAPIView):
+    # Список записей, возвращаемых клиенту
+    queryset = Women.objects.all()
+    # Переопределяем сериализатор
+    serializer_class = WomenSerializer
+
 
 # ---08.12.2023---
 # Lesson 3
