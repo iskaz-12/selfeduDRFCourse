@@ -1,8 +1,9 @@
 from django.forms import model_to_dict
-from rest_framework import generics
+from rest_framework import generics, viewsets, mixins
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import GenericViewSet
 
 from .models import Women
 from .serializers import WomenSerializer
@@ -27,37 +28,64 @@ from .serializers import WomenSerializer
 """
 
 
-# ---13.12.2023---
-# Lesson 6
-# Определим представление на основе ListCreateAPIView, возвращающее список записей по GET-запросу
-# и добавляющее новую запись по POST-запросу
-# ListCreateAPIView наследуется от следующих классов:
-# mixins.ListModelMixin - миксин для определения метода list(),
-# mixins.CreateModelMixin - миксин для определения метода create(),
-# GenericAPIView - базовый класс для всех APIView
-class WomenAPIList(generics.ListCreateAPIView):
-    # Список записей, возвращаемых клиенту
-    queryset = Women.objects.all()
-    # Переопределяем сериализатор
-    serializer_class = WomenSerializer
-
-
 # ---21.12.2023---
-# Lesson 7
-# Для возможности использования PUT-запроса, который был определён в классе WomenApiView, создадим ещё один класс,
-# наследующийся от UpdateAPIView
-class WomenAPIUpdate(generics.UpdateAPIView):
-    # Т.к. Women.objects.all() является ленивым запросом, то он выполняется не сразу, а просто связывает queryset
-    # с моделью, а пользователю возвращается одна конкретная запись
+# Lesson 8
+# Для того, чтобы избавиться от избыточности кода в классах представлений, можно воспользоваться классом ViewSet
+# class WomenViewSet(viewsets.ModelViewSet):
+#     queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
+
+
+# Если поменять базовый класс ModelViewSet на ReadOnlyModelViewSet,
+# то изменится функциональность представления (сможем только читать записи, но не менять их)
+# class WomenViewSet(viewsets.ReadOnlyModelViewSet):
+#     queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
+
+
+# Можно импортировать все миксины, указанные в ModelViewSet - всё будет работать так же
+# Если удалить какой-то из миксинов, то будет удалена реализуемая этим миксином функциональность
+class WomenViewSet(mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   # mixins.DestroyModelMixin,
+                   mixins.ListModelMixin,
+                   GenericViewSet):
     queryset = Women.objects.all()
     serializer_class = WomenSerializer
 
 
-# Создадим ещё один класс представления, выполняющий CRUD-операции, на основе класса
-# RetrieveUpdateDestroyAPIView
-class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Women.objects.all()
-    serializer_class = WomenSerializer
+# # ---13.12.2023---
+# # Lesson 6
+# # Определим представление на основе ListCreateAPIView, возвращающее список записей по GET-запросу
+# # и добавляющее новую запись по POST-запросу
+# # ListCreateAPIView наследуется от следующих классов:
+# # mixins.ListModelMixin - миксин для определения метода list(),
+# # mixins.CreateModelMixin - миксин для определения метода create(),
+# # GenericAPIView - базовый класс для всех APIView
+# class WomenAPIList(generics.ListCreateAPIView):
+#     # Список записей, возвращаемых клиенту
+#     queryset = Women.objects.all()
+#     # Переопределяем сериализатор
+#     serializer_class = WomenSerializer
+#
+#
+# # ---21.12.2023---
+# # Lesson 7
+# # Для возможности использования PUT-запроса, который был определён в классе WomenApiView, создадим ещё один класс,
+# # наследующийся от UpdateAPIView
+# class WomenAPIUpdate(generics.UpdateAPIView):
+#     # Т.к. Women.objects.all() является ленивым запросом, то он выполняется не сразу, а просто связывает queryset
+#     # с моделью, а пользователю возвращается одна конкретная запись
+#     queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
+#
+#
+# # Создадим ещё один класс представления, выполняющий CRUD-операции, на основе класса
+# # RetrieveUpdateDestroyAPIView
+# class WomenAPIDetailView(generics.RetrieveUpdateDestroyAPIView):
+#     queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
 
 
 # # ---08.12.2023---
