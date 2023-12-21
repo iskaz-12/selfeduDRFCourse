@@ -135,3 +135,15 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ---21.12.2023---
+# Lesson 7
+# В DRF можно отключить формирование браузерной формы для выполнения HTTP-запросов
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        # Данные между конечным пользователем и сайтом передаются в JSON-формате
+        'rest_framework.renderers.JSONRenderer',
+        # Подключение/отключение API браузера
+        'rest_framework.renderers.BrowsableAPIRenderer',
+    ]
+}

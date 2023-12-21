@@ -36,5 +36,11 @@ urlpatterns = [
     # Lesson 6
     # Маршруты для WomenAPIList
     path('api/v1/womenlist/', WomenAPIList.as_view()),
-    path('api/v1/womenlist/<int:pk>/', WomenAPIList.as_view())
+    # path('api/v1/womenlist/<int:pk>/', WomenAPIList.as_view())
+    # ---21.12.2023---
+    # Lesson 7
+    # Добавляем маршрут для WomenAPIUpdate
+    path('api/v1/womenlist/<int:pk>/', WomenAPIUpdate.as_view()),
+    # Добавляем маршрут для WomenAPIDetailView
+    path('api/v1/womendetail/<int:pk>/', WomenAPIDetailView.as_view())
 ]
