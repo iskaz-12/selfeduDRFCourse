@@ -1,11 +1,12 @@
 from django.forms import model_to_dict
 from rest_framework import generics, viewsets, mixins
 from django.shortcuts import render
+from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
-from .models import Women
+from .models import Women, Category
 from .serializers import WomenSerializer
 
 
@@ -51,8 +52,44 @@ class WomenViewSet(mixins.CreateModelMixin,
                    # mixins.DestroyModelMixin,
                    mixins.ListModelMixin,
                    GenericViewSet):
-    queryset = Women.objects.all()
+    # queryset = Women.objects.all()
     serializer_class = WomenSerializer
+
+    # ---22.12.2023---
+    # Lesson 9
+    # Если нам нужно возвратить не все записи, а только соответствующие каким-либо условиям,
+    # то нужно переопределить метод get_queryset
+    # При переопределении метода get_queryset можно убрать параметр queryset,
+    # НО тогда обязательно нужно прописать параметр basename в router.register
+    def get_queryset(self):
+        # Если хотим получить конкретную запись по pk, нужно определить параметр pk
+        pk = self.kwargs.get("pk")
+
+        if not pk:
+            # Возвращаем первые 3 записи (если pk не задан)
+            return Women.objects.all()[:3]
+
+        # Используем именно метод filter, т.к. метод get_queryset должен возвращать список
+        return Women.objects.filter(pk=pk)
+
+    # Для дополнительных маршрутов можно использовать декоратор @action в классе viewset
+    # Пусть мы хотим вывести список категорий
+    # methods - список разрешённых методов, detail=False - ожидается работа со списком
+    # и маршрут не будет использовать параметр pk
+    # Сам метод уже придумываем самостоятельно
+    # В списке маршрутов появился новый - /women/category/
+    # Если нам нужно получить конкретную категорию по маршруту вида: /women/1/category/,
+    # то нужно прописать detail=True
+    # @action(methods=['get'], detail=False)
+    @action(methods=['get'], detail=True)
+    # Нужно дополнительно определить параметр pk, чтобы избежать ошибки
+    # def category(self, request):
+    def category(self, request, pk=None):
+        # cats = Category.objects.all()
+        # Если хотим возвратить категорию по pk
+        cats = Category.objects.get(pk=pk)
+        # return Response({'cats': [c.name for c in cats]})
+        return Response({'cats': cats.name})
 
 
 # # ---13.12.2023---

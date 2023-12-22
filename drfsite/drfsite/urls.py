@@ -24,12 +24,73 @@ from women.views import *
 # Для маршрутизации при использовании ViewSet можно использовать роутер
 from rest_framework import routers
 
+
+# ---22.12.2023---
+# Lesson 9
+# Иногда может понадобиться создать собственный класс роутера (custom router)
+# Пример из документации по DRF
+class MyCustomRouter(routers.SimpleRouter):
+    # Список из объектов класса Route (маршрутов)
+    routes = [
+        # url - шаблон маршрута (могут быть использованы регулярные выражения)
+        # URL-адреса определены без обратного слэша
+        # mapping - связывает тип HTTP-запроса с соответствующим методом viewset
+        # name - определяет название маршрута
+        # detail - список или отдельная запись
+        # initkwargs – дополнительные аргументы для коллекции kwargs, которые передаются
+        # конкретному представлению при срабатывании маршрута
+        # Маршрут, позволяющий читать список статей
+        routers.Route(url=r'^{prefix}$',
+                      mapping={'get': 'list'},
+                      name='{basename}-list',
+                      detail=False,
+                      initkwargs={'suffix': 'List'}),
+        # Маршрут, позволяющий получить конкретную статью по идентификатору
+        routers.Route(url=r'^{prefix}/{lookup}$',
+                      mapping={'get': 'retrieve'},
+                      name='{basename}-detail',
+                      detail=True,
+                      initkwargs={'suffix': 'Detail'})
+    ]
+
+
 # роутер SimpleRouter формирует два типа маршрутов:
 # http://127.0.0.1:8000/api/v1/women/ - для извлечения списка записей (GET, POST);
 # http://127.0.0.1:8000/api/v1/women/pk/ - для работы с конкретной записью (GET, PUT, DELETE).
-router = routers.SimpleRouter()
+# ---22.12.2023---
+# Lesson 9
+# Вместо SimpleRouter попробуем использовать DefaultRouter
+# router = routers.SimpleRouter()
+# Вместо DefaultRouter попробуем кастомный роутер MyCustomRouter
+# router = routers.DefaultRouter()
+router = MyCustomRouter()
 # Регистрируем маршрут в роутере
-router.register(r'women', WomenViewSet)
+# router.register(r'women', WomenViewSet)
+# Если убрали атрибут queryset из viewset, то нужно указать basename
+router.register(r'women', WomenViewSet, basename='women')
+# router.register(r'women2', WomenViewSet)
+# Префикс в названиях (name) маршрутов в роутере берётся по имени модели (из queryset)
+# Чтобы изменить это поведение по умолчанию, можно прописать атрибут basename
+# (обязательный параметр, если во viewset не указан атрибут queryset)
+# router.register(r'women', WomenViewSet, basename='men')
+print(router.urls)
+
+"""
+Для DefaultRouter видим следующие маршруты:
+[<URLPattern '^women/$' [name='women-list']>,
+ <URLPattern '^women\.(?P<format>[a-z0-9]+)/?$' [name='women-list']>,
+ <URLPattern '^women/(?P<pk>[^/.]+)/$' [name='women-detail']>,
+ <URLPattern '^women/(?P<pk>[^/.]+)\.(?P<format>[a-z0-9]+)/?$' [name='
+women-detail']>,
+ <URLPattern '^$' [name='api-root']>,
+ <URLPattern '^\.(?P<format>[a-z0-9]+)/?$' [name='api-root']>
+]
+
+Здесь три группы маршрутов:
+/api/v1/women/  (просмотр списка статей и добавление новой статьи)
+/api/v1/women/pk/   (получение, изменение и удаление конкретной статьи)
+/api/v1/ (возвращает список маршрутов, присутствующих в роутере) (только для DefaultRouter)
+"""
 
 # ---06.12.2023---
 # Lesson 2
