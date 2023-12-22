@@ -145,5 +145,16 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         # Подключение/отключение API браузера
         'rest_framework.renderers.BrowsableAPIRenderer',
+    ],
+
+    # ---23.12.2023---
+    # Lesson 10
+    # Можно указывать глобальные настройки для ограничения доступа
+    'DEFAULT_PERMISSION_CLASSES': [
+        # Доступ к данным в этом случае будет предоставлен только авторизованным пользователям
+        # НО permission_classes, заданные в классах представлений, переопределяют глобальные настройки
+        # 'rest_framework.permissions.IsAuthenticated',
+        # По умолчанию в DRF задан параметр, определяющий доступ для всех
+        'rest_framework.permissions.AllowAny',
     ]
 }

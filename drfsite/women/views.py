@@ -2,11 +2,13 @@ from django.forms import model_to_dict
 from rest_framework import generics, viewsets, mixins
 from django.shortcuts import render
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import GenericViewSet
 
 from .models import Women, Category
+from .permissions import IsAdminOrReadOnly, IsOwnerOrReadOnly
 from .serializers import WomenSerializer
 
 
@@ -44,52 +46,83 @@ from .serializers import WomenSerializer
 #     serializer_class = WomenSerializer
 
 
-# Можно импортировать все миксины, указанные в ModelViewSet - всё будет работать так же
-# Если удалить какой-то из миксинов, то будет удалена реализуемая этим миксином функциональность
-class WomenViewSet(mixins.CreateModelMixin,
-                   mixins.RetrieveModelMixin,
-                   mixins.UpdateModelMixin,
-                   # mixins.DestroyModelMixin,
-                   mixins.ListModelMixin,
-                   GenericViewSet):
-    # queryset = Women.objects.all()
+# ---23.12.2023---
+# Lesson 10
+# Для изучения работы с правами доступа создадим несколько классов представлений вместо viewset
+# Класс, возвращающий список статей
+class WomenAPIList(generics.ListCreateAPIView):
+    queryset = Women.objects.all()
     serializer_class = WomenSerializer
+    # Пусть добавлять новые записи смогут только авторизованные пользователи
+    # Если убрать определение permission_classes, то будут применяться глобальные настройки доступа
+    # permission_classes = (IsAuthenticatedOrReadOnly, )
 
-    # ---22.12.2023---
-    # Lesson 9
-    # Если нам нужно возвратить не все записи, а только соответствующие каким-либо условиям,
-    # то нужно переопределить метод get_queryset
-    # При переопределении метода get_queryset можно убрать параметр queryset,
-    # НО тогда обязательно нужно прописать параметр basename в router.register
-    def get_queryset(self):
-        # Если хотим получить конкретную запись по pk, нужно определить параметр pk
-        pk = self.kwargs.get("pk")
 
-        if not pk:
-            # Возвращаем первые 3 записи (если pk не задан)
-            return Women.objects.all()[:3]
+# Класс, меняющий определённую запись
+class WomenAPIUpdate(generics.RetrieveUpdateAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    # Разрешим менять запись только автору, а просматривать - всем пользователям
+    # (для этого также нужно будет создать пользовательский класс разрешений)
+    permission_classes = (IsOwnerOrReadOnly, )
 
-        # Используем именно метод filter, т.к. метод get_queryset должен возвращать список
-        return Women.objects.filter(pk=pk)
 
-    # Для дополнительных маршрутов можно использовать декоратор @action в классе viewset
-    # Пусть мы хотим вывести список категорий
-    # methods - список разрешённых методов, detail=False - ожидается работа со списком
-    # и маршрут не будет использовать параметр pk
-    # Сам метод уже придумываем самостоятельно
-    # В списке маршрутов появился новый - /women/category/
-    # Если нам нужно получить конкретную категорию по маршруту вида: /women/1/category/,
-    # то нужно прописать detail=True
-    # @action(methods=['get'], detail=False)
-    @action(methods=['get'], detail=True)
-    # Нужно дополнительно определить параметр pk, чтобы избежать ошибки
-    # def category(self, request):
-    def category(self, request, pk=None):
-        # cats = Category.objects.all()
-        # Если хотим возвратить категорию по pk
-        cats = Category.objects.get(pk=pk)
-        # return Response({'cats': [c.name for c in cats]})
-        return Response({'cats': cats.name})
+# Класс, удаляющий определённую запись
+class WomenAPIDestroy(generics.RetrieveDestroyAPIView):
+    queryset = Women.objects.all()
+    serializer_class = WomenSerializer
+    # Предположим, что записи может удалять только администратор
+    # permission_classes = (IsAdminUser, )
+    # Создали пользовательский класс разрешений
+    permission_classes = (IsAdminOrReadOnly,)
+
+
+# # Можно импортировать все миксины, указанные в ModelViewSet - всё будет работать так же
+# # Если удалить какой-то из миксинов, то будет удалена реализуемая этим миксином функциональность
+# class WomenViewSet(mixins.CreateModelMixin,
+#                    mixins.RetrieveModelMixin,
+#                    mixins.UpdateModelMixin,
+#                    # mixins.DestroyModelMixin,
+#                    mixins.ListModelMixin,
+#                    GenericViewSet):
+#     # queryset = Women.objects.all()
+#     serializer_class = WomenSerializer
+#
+#     # ---22.12.2023---
+#     # Lesson 9
+#     # Если нам нужно возвратить не все записи, а только соответствующие каким-либо условиям,
+#     # то нужно переопределить метод get_queryset
+#     # При переопределении метода get_queryset можно убрать параметр queryset,
+#     # НО тогда обязательно нужно прописать параметр basename в router.register
+#     def get_queryset(self):
+#         # Если хотим получить конкретную запись по pk, нужно определить параметр pk
+#         pk = self.kwargs.get("pk")
+#
+#         if not pk:
+#             # Возвращаем первые 3 записи (если pk не задан)
+#             return Women.objects.all()[:3]
+#
+#         # Используем именно метод filter, т.к. метод get_queryset должен возвращать список
+#         return Women.objects.filter(pk=pk)
+#
+#     # Для дополнительных маршрутов можно использовать декоратор @action в классе viewset
+#     # Пусть мы хотим вывести список категорий
+#     # methods - список разрешённых методов, detail=False - ожидается работа со списком
+#     # и маршрут не будет использовать параметр pk
+#     # Сам метод уже придумываем самостоятельно
+#     # В списке маршрутов появился новый - /women/category/
+#     # Если нам нужно получить конкретную категорию по маршруту вида: /women/1/category/,
+#     # то нужно прописать detail=True
+#     # @action(methods=['get'], detail=False)
+#     @action(methods=['get'], detail=True)
+#     # Нужно дополнительно определить параметр pk, чтобы избежать ошибки
+#     # def category(self, request):
+#     def category(self, request, pk=None):
+#         # cats = Category.objects.all()
+#         # Если хотим возвратить категорию по pk
+#         cats = Category.objects.get(pk=pk)
+#         # return Response({'cats': [c.name for c in cats]})
+#         return Response({'cats': cats.name})
 
 
 # # ---13.12.2023---

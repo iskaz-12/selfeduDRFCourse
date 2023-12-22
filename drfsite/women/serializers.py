@@ -85,6 +85,12 @@ from .models import Women
 # Воспользуемся классом ModelSerializer, упрощающем текст программы при описании сериализаторов,
 # связанных с моделями Django
 class WomenSerializer(serializers.ModelSerializer):
+    # ---23.12.2023---
+    # Lesson 10
+    # Добавляем в класс сериализатора дополнительный атрибут для того, чтобы авторизованный пользователь
+    # при добавлении новой записи не смог перезаписать поле user
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
     # Вложенный класс, определяющий модель, с которой работаем
     class Meta:
         model = Women
