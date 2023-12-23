@@ -1,6 +1,7 @@
+from django.contrib.auth import logout
 from django.forms import model_to_dict
 from rest_framework import generics, viewsets, mixins
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
 from rest_framework.response import Response
@@ -55,7 +56,16 @@ class WomenAPIList(generics.ListCreateAPIView):
     serializer_class = WomenSerializer
     # Пусть добавлять новые записи смогут только авторизованные пользователи
     # Если убрать определение permission_classes, то будут применяться глобальные настройки доступа
-    # permission_classes = (IsAuthenticatedOrReadOnly, )
+    permission_classes = (IsAuthenticatedOrReadOnly, )
+
+
+# ---23.12.2023---
+# Lesson 11
+# ДОПОЛНИТЕЛЬНАЯ ФУНКЦИЯ ДЛЯ logout (ДЛЯ ИСПРАВЛЕНИЯ ОШИБКИ 405)
+def logout_user(request):
+    logout(request)
+    # redirect - перенаправление по маршруту
+    return redirect('/')
 
 
 # Класс, меняющий определённую запись
