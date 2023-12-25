@@ -15,7 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+
+# ---25.12.2023---
+# Lesson 12
+# Реализация аутентификации по токенам встроенными средствами DRF
+from rest_framework.authtoken import views
 
 # from women.views import WomenAPIView, WomenAPIList
 from women.views import *
@@ -148,4 +153,20 @@ urlpatterns = [
     path('api/v1/women/', WomenAPIList.as_view()),
     path('api/v1/women/<int:pk>/', WomenAPIUpdate.as_view()),
     path('api/v1/womendelete/<int:pk>/', WomenAPIDestroy.as_view()),
+
+    # ---25.12.2023---
+    # Lesson 12
+    # Подключаем маршруты для авторизации по токенам с помощью Djoser
+    # Базовый маршрут для авторизации и других действий с пользователями
+    # (можно создавать/удалять пользователей, менять их данные и т.д. (с помощью POST-запросов))
+    path('api/v1/auth/', include('djoser.urls')),
+    # Маршрут для авторизации по токенам
+    re_path(r'^auth/', include('djoser.urls.authtoken')),
+
+    # ---25.12.2023---
+    # Lesson 12
+    # ДОПОЛНИТЕЛЬНОЕ ЗАДАНИЕ - реализация аутентификации по токенам средствами DRF
+    # Задаём маршрут для генерации/получения токена для текущего пользователя
+    path('api-token-auth/', views.obtain_auth_token)
+
 ]

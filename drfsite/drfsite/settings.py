@@ -41,7 +41,13 @@ INSTALLED_APPS = [
     # Подключаем приложение women
     'women.apps.WomenConfig',
     # Подключаем Django REST Framework
-    'rest_framework'
+    'rest_framework',
+
+    # ---25.12.2023---
+    # Lesson 12
+    # Для реализации авторизации по токенам подключаем стандартную таблицу DRF и библиотеку Djoser
+    'rest_framework.authtoken',
+    'djoser',
 ]
 
 MIDDLEWARE = [
@@ -156,5 +162,14 @@ REST_FRAMEWORK = {
         # 'rest_framework.permissions.IsAuthenticated',
         # По умолчанию в DRF задан параметр, определяющий доступ для всех
         'rest_framework.permissions.AllowAny',
+    ],
+
+    # ---25.12.2023---
+    # Lesson 12
+    # Разрешим аутентификацию по токенам (а также по сессиям (поведение DRF по умолчанию))
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ]
 }
