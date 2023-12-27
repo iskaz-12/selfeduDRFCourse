@@ -21,6 +21,7 @@ from django.urls import path, include, re_path
 # Lesson 12
 # Реализация аутентификации по токенам встроенными средствами DRF
 from rest_framework.authtoken import views
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 # from women.views import WomenAPIView, WomenAPIList
 from women.views import *
@@ -167,6 +168,12 @@ urlpatterns = [
     # Lesson 12
     # ДОПОЛНИТЕЛЬНОЕ ЗАДАНИЕ - реализация аутентификации по токенам средствами DRF
     # Задаём маршрут для генерации/получения токена для текущего пользователя
-    path('api-token-auth/', views.obtain_auth_token)
+    path('api-token-auth/', views.obtain_auth_token),
 
+    # ---27.12.2023---
+    # Lesson 14
+    # Подключаем маршруты библиотеки Simple JWT
+    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/v1/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 ]
