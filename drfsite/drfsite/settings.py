@@ -146,6 +146,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Lesson 7
 # В DRF можно отключить формирование браузерной формы для выполнения HTTP-запросов
 REST_FRAMEWORK = {
+    # ---27.12.2023---
+    # Lesson 15
+    # Добавляем пагинацию в DRF
+    # Здесь указываются глобальные настройки для всего проекта
+    # Встроенный в DRF класс пагинации
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    # Количество записей на странице
+    # 'PAGE_SIZE': 100,
+    'PAGE_SIZE': 2,
+
     'DEFAULT_RENDERER_CLASSES': [
         # Данные между конечным пользователем и сайтом передаются в JSON-формате
         'rest_framework.renderers.JSONRenderer',

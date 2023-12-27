@@ -4,6 +4,7 @@ from rest_framework import generics, viewsets, mixins
 from django.shortcuts import render, redirect
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -48,6 +49,20 @@ from .serializers import WomenSerializer
 #     serializer_class = WomenSerializer
 
 
+# ---27.12.2023---
+# Lesson 15
+# Можно создавать пользовательские классы пагинации для отдельных API-запросов
+# PageNumberPagination - базовый класс для пагинации в DRF (по номерам страниц)
+class WomenAPIListPagination(PageNumberPagination):
+    # Количество записей на странице
+    page_size = 3
+    # Определяем название параметра в запросе для указания количества записей на странице
+    page_size_query_param = 'page_size'
+    # Максимальное значение параметра page_size в запросе
+    # max_page_size = 10000
+    max_page_size = 2
+
+
 # ---23.12.2023---
 # Lesson 10
 # Для изучения работы с правами доступа создадим несколько классов представлений вместо viewset
@@ -58,6 +73,10 @@ class WomenAPIList(generics.ListCreateAPIView):
     # Пусть добавлять новые записи смогут только авторизованные пользователи
     # Если убрать определение permission_classes, то будут применяться глобальные настройки доступа
     permission_classes = (IsAuthenticatedOrReadOnly, )
+    # ---27.12.2023---
+    # Lesson 15
+    # Подключаем пользовательский класс пагинации к представлению
+    pagination_class = WomenAPIListPagination
 
 
 # ---23.12.2023---
